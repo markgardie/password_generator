@@ -1,5 +1,6 @@
 import random
 import string
+import pyperclip
 
 
 def generate_password(length, use_upper, use_lower, use_digits, use_special):
@@ -29,3 +30,53 @@ def generate_password(length, use_upper, use_lower, use_digits, use_special):
 
     password = "".join(random.choice(characters) for _ in range(length))
     return password
+
+
+def check_strength(password):
+    """
+    Оцінює надійність пароля.
+
+    Критерії (кожен дає +1 бал):
+      - довжина >= 12
+      - є великі літери
+      - є малі літери
+      - є цифри
+      - є спецсимволи
+
+    :return: tuple ("weak"|"medium"|"strong", int score 0-5)
+    """
+    if not password:
+        return "weak", 0
+
+    score = 0
+
+    if len(password) >= 12:
+        score += 1
+    if any(c.isupper() for c in password):
+        score += 1
+    if any(c.islower() for c in password):
+        score += 1
+    if any(c.isdigit() for c in password):
+        score += 1
+    if any(c in string.punctuation for c in password):
+        score += 1
+
+    if score <= 2:
+        return "weak", score
+    elif score <= 3:
+        return "medium", score
+    else:
+        return "strong", score
+
+
+def copy_to_clipboard(text):
+    """
+    Копіює текст у буфер обміну.
+
+    :return: True якщо успішно, False якщо pyperclip недоступний
+    """
+    try:
+        pyperclip.copy(text)
+        return True
+    except pyperclip.PyperclipException:
+        return False
