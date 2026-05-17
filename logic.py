@@ -80,3 +80,51 @@ def copy_to_clipboard(text):
         return True
     except pyperclip.PyperclipException:
         return False
+
+
+import json
+import os
+from datetime import datetime
+
+PASSWORDS_FILE = "passwords.json"
+
+
+def save_password(password, label=""):
+    """
+    Зберігає пароль у passwords.json.
+
+    :param password: рядок пароля
+    :param label: необов'язкова мітка (наприклад, "Gmail")
+    :return: True якщо збережено успішно
+    """
+    entries = load_passwords()
+
+    entry = {
+        "password": password,
+        "label": label,
+        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
+    }
+    entries.append(entry)
+
+    try:
+        with open(PASSWORDS_FILE, "w", encoding="utf-8") as f:
+            json.dump(entries, f, ensure_ascii=False, indent=2)
+        return True
+    except OSError:
+        return False
+
+
+def load_passwords():
+    """
+    Читає список збережених паролів із passwords.json.
+
+    :return: list of dict, або [] якщо файл не існує / пошкоджений
+    """
+    if not os.path.exists(PASSWORDS_FILE):
+        return []
+
+    try:
+        with open(PASSWORDS_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return []
